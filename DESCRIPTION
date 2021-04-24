@@ -18,4 +18,5 @@ Imports:
     riingo,
     TTR,
     progress,
-    lubridate
+    lubridate,
+    ggplot2
