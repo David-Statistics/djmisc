@@ -1,0 +1,20 @@
+Package: djmisc
+Title: Generally Useful Functions for R & Personal Finance
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "David",
+           family = "Clancy",
+           role = c("aut", "cre"),
+           email = "david.statistics@gmail.com")
+Description: A personal package mostly meant to hold functions that I use a bunch. Often just generally useful R 
+             functions or functions that help me with personal finance tracking.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+Imports: 
+    Rcpp
