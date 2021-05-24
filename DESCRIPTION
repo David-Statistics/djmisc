@@ -19,4 +19,6 @@ Imports:
     TTR,
     progress,
     lubridate,
-    ggplot2
+    ggplot2,
+    glue,
+    gridExtra

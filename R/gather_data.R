@@ -20,9 +20,17 @@ gather_data <- function(syms, show_progress = TRUE, sleep_time = .25, ...) {
   res = lapply(syms, FUN = function(sym) {
     Sys.sleep(sleep_time)
     pb$tick(tokens = list(ticker = sym))
-    d = pull_dat(sym, ...)
+    d = tryCatch(pull_dat(sym, ...),
+                 error = function(cond) {
+                   return(NULL)
+                 })
+    if(is.null(d)) return(NULL)
     d = populate_div_yield(d)
-    curr_p = recent_quote(sym)
+    curr_p = tryCatch(recent_quote(sym),
+                      error = function(cond) {
+                        return(NULL)
+                      })
+    if(is.null(curr_p)) return(NULL)
     d[,y := floor(lubridate::time_length(lubridate::interval(Sys.Date(), as.Date(date)),"years"))]
     tots = d[divCash > 0 | splitFactor != 1]
     tots[,adjRatio := cumprod(splitFactor)]
@@ -37,7 +45,11 @@ gather_data <- function(syms, show_progress = TRUE, sleep_time = .25, ...) {
     if(-10 %in% y_divs[,y]) year10 = (y_divs[y == -1, V1] / y_divs[y == -10, V1])^.1 - 1
     if(-15 %in% y_divs[,y]) year15 = (y_divs[y == -1, V1] / y_divs[y == -15, V1])^(1/15) - 1
     if(!is.na(year10)) momentum = year5 / year10
-    if(!is.na(year5)) combined = mean(c(year5, year10, year15), na.rm = TRUE)
+    if(!is.na(year5)) {
+      grs <- c(year5, year10, year15)
+      grs <- grs[!is.na(grs) & !is.infinite(grs)]
+      combined = mean(grs, na.rm = TRUE)
+    }
     rsi = get_last(TTR::RSI(get_last(d[,close], 30)))
     yield = get_last(d[divCash > 0,divCash]) / curr_p
     yield_perc = mean(d[date > (Sys.Date() - lubridate::years(10)),yield] < yield)
