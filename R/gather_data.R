@@ -26,16 +26,16 @@ gather_data <- function(syms, show_progress = TRUE, sleep_time = .25, ...) {
                  })
     if(is.null(d)) return(NULL)
     d = populate_div_yield(d)
-    curr_p = tryCatch(recent_quote(sym),
-                      error = function(cond) {
-                        return(NULL)
-                      })
+    curr_p = d[order(-date)][1,close]
     if(is.null(curr_p)) return(NULL)
     d[,y := floor(lubridate::time_length(lubridate::interval(Sys.Date(), as.Date(date)),"years"))]
     tots = d[divCash > 0 | splitFactor != 1]
+    valid_divs = unique(c(tots[divCash > 0][order(-date)][1,divCash],
+                          tots[,.N,divCash][N > 1, divCash]))
+    tots = tots[splitFactor != 1 | divCash %in% valid_divs]
     tots[,adjRatio := cumprod(splitFactor)]
     tots[, adjDiv := divCash * (adjRatio / max(adjRatio))]
-    y_divs = tots[,.(sum(adjDiv)), y]
+    y_divs = tots[,.(sum(adjDiv) / .N), y]
     year5 = NA
     year10 = NA
     year15 = NA

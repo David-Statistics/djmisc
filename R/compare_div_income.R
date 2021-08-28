@@ -24,7 +24,7 @@ compare_div_income <- function(data,
   }
   data[,PayDate := as.IDate(PayDate)]
   data <- data[PayDate < m & data.table::year(PayDate) >= (y-n_years)]
-  data[,Month := ceiling_date(PayDate, unit = 'month') - 1]
+  data[,Month := lubridate::ceiling_date(PayDate, unit = 'month') - 1]
   data[,Income := as.numeric(gsub('\\$', '', Income))]
   data = data[,.('Income' = sum(Income)), Month]
   data[,Year := as.character(year(Month))]
