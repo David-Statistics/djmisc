@@ -17,23 +17,26 @@ compare_div_income <- function(data,
                                m = NULL,
                                y = NULL,
                                n_years = 1) {
-  if(is.null(m)) m <- lubridate::ceiling_date(Sys.Date(), 'months')
+  if(is.null(m)) m <- lubridate::month(Sys.Date())
   if(is.null(y)) y <- lubridate::year(Sys.Date())
   if(date_field != 'PayDate') {
     setnames(data, old = date_field, new = 'PayDate')
   }
   data[,PayDate := as.IDate(PayDate)]
-  data <- data[PayDate < m & data.table::year(PayDate) >= (y-n_years)]
-  data[,Month := lubridate::ceiling_date(PayDate, unit = 'month') - 1]
+  data[,Month := data.table::month(PayDate)]
+  data[,Year := data.table::year(PayDate)]
+  data <- data[(Month <= m & Year == y) |
+                 (Year >= (y-n_years) & Year < y)]
   data[,Income := as.numeric(gsub('\\$', '', Income))]
-  data = data[,.('Income' = sum(Income)), Month]
-  data[,Year := as.character(year(Month))]
-  data[,Month := month(Month)]
+  data = data[,.('Income' = sum(Income)), keyby = .(Year,Month)]
   data[,cumIncome := cumsum(Income),Year]
-  data = rbindlist(list(data, as.data.table(expand.grid(Month = 0, Income = 0, Year = seq(y-n_years, y, 1), cumIncome = 0))))
+  data = rbindlist(list(data, as.data.table(expand.grid(Year = seq(y-n_years, y, 1), Month = 0, Income = 0, cumIncome = 0))))
   fills <- c('#28473d', paste0('#28473d', seq(85, 99 - ((n_years-1) * 15), length.out = n_years)))
   names(fills) <- as.character(seq(y-n_years, y, 1))
-  data <- rbindlist(list(data, data.table(Month = 1, Income = 0, Year = 2020, cumIncome = 0)))
+  if(2020 >= (y - n_years) & 2020 <= y) {
+    data <- rbindlist(list(data, data.table(Year = 2020, Month = 1, Income = 0, cumIncome = 0)))
+  }
+  data[,Year := as.character(Year)]
   plt <- ggplot(data, aes(x = Month, y = cumIncome)) +
     geom_area(aes(fill = Year), position = 'identity') +
     scale_fill_manual(values = fills) +

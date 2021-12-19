@@ -16,8 +16,8 @@
 #' @import data.table
 #' @import gridExtra
 plot_income_forecast <- function(data,
-                                 date_field = 'Date',
-                                 forecast_field = 'Forward_div',
+                                 date_field = 'date',
+                                 forecast_field = 'div',
                                  y = NULL,
                                  add_cagr = TRUE,
                                  n_years = 1) {
@@ -45,7 +45,7 @@ plot_income_forecast <- function(data,
                 vjust = 'inward',
                 hjust = 'inward')
   }
-  to_plot <- data[,.(date, `Forward Annual Income`, `MoM Net Change`, `MoM % Change`)]
+  to_plot <- data[,.(date, `Forward Annual Income`, `MoM Net Change`, `MoM % Change`)][order(-date)][1:12]
   setDF(to_plot)
   to_plot <- tableGrob(to_plot, rows = NULL)
   p <- do.call(grid.arrange, list(income_plt, to_plot))

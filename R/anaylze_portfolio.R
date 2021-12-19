@@ -7,7 +7,7 @@
 anaylze_portfolio <- function(transactions, rounding = 4, updates = NULL) {
   stocks = dcast(transactions, Ticker ~ ., fun.aggregate = sum,
                  value.var = c('Volume', 'Total_Cost'))
-  stocks = stocks[Volume > 0]
+  stocks = stocks[Volume >= 1]
   stocks[,cost_basis := round(Total_Cost / Volume, 3)]
   stocks[,curr_price := round(sapply(stocks[,Ticker], recent_quote), 2)]
   stocks[,curr_value := round(curr_price * Volume, 3)]

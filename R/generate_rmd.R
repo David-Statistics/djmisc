@@ -10,7 +10,7 @@ generate_rmd <- function(income_forecast,
                          path,
                          m = NULL,
                          y = NULL,
-                         plt_height = 6) {
+                         plt_height = 8) {
   if(!dir.exists(path)) dir.create(path)
   if(!dir.exists(paste0(path, '/plots'))) dir.create(paste0(path, '/plots'))
   if(!dir.exists(paste0(path, '/data'))) dir.create(paste0(path, '/data'))
